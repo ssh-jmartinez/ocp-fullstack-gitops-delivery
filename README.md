@@ -45,7 +45,7 @@ Se implementó **Bitnami Sealed Secrets** para gestionar credenciales de base de
 
 Gracias a la implementación del patrón **App-of-Apps**, la infraestructura es completamente autoprovisionable. No es necesario crear cada componente manualmente; el sistema está diseñado para el despliegue automático del ecosistema completo.
 
-Para desplegar toda la infraestructura (Frontend, Backend, Database, Secretos y Pipelines), solo es necesario ejecutar:
+Para desplegar toda la infraestructura (Frontend, Backend, Database, Secretos), solo es necesario ejecutar:
 
 ```bash
 argocd app create -f argocd-apps/root-app.yaml
@@ -59,7 +59,7 @@ Este repositorio está organizado para separar la lógica de automatización de 
 
 * **`/k8s-manifests`**: Contiene los Deployments, Services, Routes y definiciones de **SealedSecrets**.
 * **`/argocd-apps`**: Definiciones de las aplicaciones de Argo CD (Root App y Templates) para la gestión del ciclo de vida jerárquico.
-* **`/pipeline`**: Definiciones de Tasks y Pipelines de Tekton para el flujo de CI.
+* **`/pipelines`**: Definiciones de Tasks y Pipelines de Tekton para el flujo de CI.
 
 ---
 
