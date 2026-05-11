@@ -28,12 +28,16 @@ Se decidió utilizar Nginx no solo como servidor de archivos, sino como un **Pun
 * **Por qué:** Al redirigir el tráfico `/api` internamente hacia el backend, eliminamos la necesidad de configurar políticas de CORS en el código y simplificamos el DNS, exponiendo un único punto de entrada (Route) hacia el exterior.
 
 ### 2. Entrega Basada en GitOps (Argo CD)
-Toda la configuración del clúster reside en este repositorio de manifiestos.
+Toda la configuración del clúster reside en este repositorio de manifiestos utilizando el patrón **App-of-Apps**.
 * **Por qué:** Esto garantiza que el estado del clúster sea auditable y recuperable. Si un objeto de Kubernetes se modifica manualmente, Argo CD detecta la desviación ("drift") y lo sincroniza automáticamente con la versión definida en Git.
 
 ### 3. Pipelines de Construcción Nativos (Tekton)
 El proceso de CI se ejecuta dentro del propio clúster mediante **Tekton Pipelines**.
 * **Por qué:** Al usar Buildah para la construcción de imágenes, el proceso es más seguro (daemonless) y se integra perfectamente con el registro de imágenes interno de OpenShift, reduciendo la latencia y mejorando la seguridad del ciclo de vida de la imagen.
+
+### 4. Gestión Segura de Secretos (Sealed Secrets)
+Se implementó **Bitnami Sealed Secrets** para gestionar credenciales de base de datos.
+* **Por qué:** Permite cifrar secretos de forma que solo el controlador dentro del clúster pueda descifrarlos. Esto hace posible almacenar información sensible de forma segura en este repositorio público, manteniendo el flujo 100% fiel a la filosofía GitOps.
 
 ---
 
@@ -41,10 +45,10 @@ El proceso de CI se ejecuta dentro del propio clúster mediante **Tekton Pipelin
 
 Este repositorio está organizado para separar la lógica de automatización de los recursos de Kubernetes:
 
-* **`/k8s-manifests`**: Contiene los Deployments, Services, Routes y definiciones de almacenamiento (PVC) que componen la infraestructura.
-* **`/argocd-apps`**: Definiciones de las aplicaciones de Argo CD para la gestión del ciclo de vida.
+* **`/k8s-manifests`**: Contiene los Deployments, Services, Routes y definiciones de **SealedSecrets** (provisionamiento automático de credenciales cifradas).
+* **`/argocd-apps`**: Definiciones de las aplicaciones de Argo CD (Root App y Templates) para la gestión del ciclo de vida jerárquico.
 * **`/pipeline`**: Definiciones de Tasks y Pipelines de Tekton para el flujo de CI.
-* **`/cicd`**: Configuraciones críticas de entorno, incluyendo el Dockerfile optimizado y la configuración del proxy de red.
+* **`/cicd`**: Configuraciones críticas de entorno, incluyendo el Dockerfile optimizado para entornos unprivileged y la configuración del proxy de red.
 
 ---
 
@@ -53,4 +57,5 @@ Este repositorio está organizado para separar la lógica de automatización de 
 * **GitOps:** Argo CD
 * **CI Pipelines:** Tekton
 * **Container Build:** Buildah
+* **Seguridad:** Bitnami Sealed Secrets
 * **Stack:** Nginx, Node.js, PostgreSQL
