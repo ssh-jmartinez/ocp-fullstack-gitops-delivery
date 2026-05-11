@@ -1,0 +1,40 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-and-push-web
+  namespace: demo
+spec:
+  params:
+    - name: repo-url
+      type: string
+      description: URL del código fuente
+    - name: image-name
+      type: string
+      description: Nombre completo de la imagen resultante
+  workspaces:
+    - name: shared-data
+  tasks:
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-data
+      params:
+        - name: URL           
+          value: $(params.repo-url)
+        - name: REVISION      
+          value: main
+    - name: build-image
+      runAfter:
+        - fetch-repository
+      taskRef:
+        name: buildah
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: IMAGE       
+          value: $(params.image-name)
+        - name: TLSVERIFY
+          value: "false"
