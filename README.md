@@ -1,76 +1,56 @@
-# Enterprise Full-Stack Orchestration: OpenShift + GitOps + CI/CD
+# Enterprise GitOps & CI/CD Orchestration on OpenShift
 
-Este repositorio documenta la arquitectura, el despliegue y la automatización de una aplicación Full-Stack en un entorno empresarial de **Red Hat OpenShift**. El proyecto demuestra el uso de **GitOps**, seguridad en contenedores y despliegue continuo (CI/CD).
+Este repositorio centraliza la orquestación, automatización y los manifiestos de infraestructura para una aplicación Full-Stack distribuida. El objetivo principal es demostrar un flujo de entrega continua (CI/CD) profesional utilizando herramientas nativas de Kubernetes en un entorno de **Red Hat OpenShift**.
 
 ---
 
 ## 🏗️ Arquitectura del Sistema
 
-## 🏗️ Arquitectura del Sistema
-
-Para garantizar la seguridad y eficiencia en OpenShift, se implementó una arquitectura de 3 capas con un Reverse Proxy integrado:
+La solución se basa en una arquitectura de microservicios desacoplada, donde la seguridad y la conectividad se gestionan a nivel de infraestructura:
 
 ![Arquitectura Técnica del Proyecto](./assets/arquitectura.png)
 
-*Figura 1: Diagrama de flujo de red y componentes del clúster.*
+### Ecosistema de Aplicaciones
+El código fuente de los componentes se mantiene en repositorios independientes para facilitar el escalado y la mantenibilidad:
 
-* **Frontend:** Servidor Nginx (Unprivileged) actuando como Host Estático y Reverse Proxy.
-* **Backend:** API REST construida en Node.js.
-* **Database:** PostgreSQL con persistencia de datos mediante Persistent Volume Claims (PVC).
-
-
-
----
-
-## 🚀 Flujo de Entrega Continua (CI/CD)
-
-El ciclo de vida del software está totalmente automatizado:
-
-1.  **CI (Tekton):** Al realizar un `git push`, un **Pipeline de Tekton** clona el código, construye la imagen de contenedor utilizando **Buildah** y la publica en el registro interno de OpenShift.
-2.  **CD (Argo CD):** Basado en el patrón **GitOps**, Argo CD monitorea el repositorio de manifiestos y sincroniza automáticamente el estado deseado en el clúster.
-
-
+* **Frontend Service:** [demo-app](https://github.com/jmartinez-fusion/demo-app.git) - Host estático basado en Nginx Unprivileged que integra las reglas de Reverse Proxy.
+* **Backend Service:** [demo-backend](https://github.com/jmartinez-fusion/demo-backend.git) - API REST en Node.js encargada del procesamiento de datos.
+* **Database:** Instancia persistente de PostgreSQL gestionada mediante **Persistent Volume Claims (PVC)**.
 
 ---
 
-## 🛠️ Retos Técnicos y Soluciones
+## ⚙️ Estrategia de Diseño y Decisiones Técnicas
 
-Durante la implementación, se resolvieron desafíos críticos de infraestructura:
+En lugar de un despliegue tradicional, se optó por un enfoque de **Infraestructura como Código (IaC)** basado en los siguientes principios:
 
-### 1. Hardening de Seguridad (Non-Root Containers)
-OpenShift utiliza **Security Context Constraints (SCC)** que prohíben ejecutar contenedores como root.
-* **Solución:** Se implementó una imagen de `nginxinc/nginx-unprivileged:alpine-slim` y se ajustaron los permisos de carpetas temporales (`/var/cache/nginx`) mediante instrucciones `RUN chmod -R g+w` en el Dockerfile para cumplir con las políticas de usuario aleatorio de OpenShift.
+### 1. Centralización de la Conectividad (Reverse Proxy)
+Se decidió utilizar Nginx no solo como servidor de archivos, sino como un **Punto de Entrada Unificado**. 
+* **Por qué:** Al redirigir el tráfico `/api` internamente hacia el backend, eliminamos la necesidad de configurar políticas de CORS en el código y simplificamos el DNS, exponiendo un único punto de entrada (Route) hacia el exterior.
 
-### 2. Eliminación de CORS mediante Reverse Proxy
-Para evitar problemas de seguridad y simplificar la comunicación entre capas:
-* **Solución:** Se configuró Nginx como proxy inverso. Todas las peticiones al path `/api` son redirigidas internamente al servicio del Backend en el puerto 8080.
-    ```nginx
-    location /api {
-        proxy_pass http://demo-backend:8080;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-    }
-    ```
+### 2. Entrega Basada en GitOps (Argo CD)
+Toda la configuración del clúster reside en este repositorio de manifiestos.
+* **Por qué:** Esto garantiza que el estado del clúster sea auditable y recuperable. Si un objeto de Kubernetes se modifica manualmente, Argo CD detecta la desviación ("drift") y lo sincroniza automáticamente con la versión definida en Git.
 
-### 3. Persistencia de Datos
-* **Solución:** Uso de **StorageClasses** dinámicas para la base de datos PostgreSQL, asegurando que la información de los visitantes persista ante reinicios de los Pods.
+### 3. Pipelines de Construcción Nativos (Tekton)
+El proceso de CI se ejecuta dentro del propio clúster mediante **Tekton Pipelines**.
+* **Por qué:** Al usar Buildah para la construcción de imágenes, el proceso es más seguro (daemonless) y se integra perfectamente con el registro de imágenes interno de OpenShift, reduciendo la latencia y mejorando la seguridad del ciclo de vida de la imagen.
 
 ---
 
-## 📊 Evidencia de Implementación
+## 🚀 Estructura del Repositorio de Orquestación
 
-### App Full-Stack Funcionando
-![Dashboard de Visitantes](./assets/app.png)
-*Estado actual: Conectividad exitosa entre capas y persistencia verificada.*
+Este repositorio está organizado para separar la lógica de automatización de los recursos de Kubernetes:
 
-### Estado de Argo CD
-![Argo CD Sync Status](./assets/argocd.png)
-*Sincronización automática activa y estado saludable (Healthy).*
+* **`/k8s-manifests`**: Contiene los Deployments, Services, Routes y definiciones de almacenamiento (PVC) que componen la infraestructura.
+* **`/argocd-apps`**: Definiciones de las aplicaciones de Argo CD para la gestión del ciclo de vida.
+* **`/pipeline`**: Definiciones de Tasks y Pipelines de Tekton para el flujo de CI.
+* **`/cicd`**: Configuraciones críticas de entorno, incluyendo el Dockerfile optimizado y la configuración del proxy de red.
 
 ---
 
-## 💻 Tecnologías Utilizadas
-* **Plataforma:** Red Hat OpenShift
-* **Automatización:** Tekton & Argo CD
-* **Servidores:** Nginx & Node.js
-* **Base de Datos:** PostgreSQL
+## 💻 Tecnologías Core
+* **Orquestación:** Red Hat OpenShift
+* **GitOps:** Argo CD
+* **CI Pipelines:** Tekton
+* **Container Build:** Buildah
+* **Stack:** Nginx, Node.js, PostgreSQL
