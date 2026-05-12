@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: image-registry.openshift-image-registry.svc:5000/demo-dev/demo-backend:latest
+        image: image-registry.openshift-image-registry.svc:5000/demo/demo-backend:latest
         env:
         - name: DB_HOST
           value: "database-postgresql" # El nombre del Service de tu DB
