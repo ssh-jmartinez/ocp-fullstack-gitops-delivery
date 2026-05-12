@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-metrics-dashboard
+  namespace: demo
+  labels:
+    grafana_dashboard: "1" # Esta etiqueta le dice a OpenShift: "¡Esto es un dashboard!"
+data:
+  visitors-dashboard.json: |
+    {
+      "title": "Demo App - Business Metrics",
+      "panels": [
+        {
+          "title": "Total Visitors Registered",
+          "type": "stat",
+          "targets": [
+            { "expr": "sum(api_visitors_total)", "refId": "A" }
+          ],
+          "fieldConfig": {
+            "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "green", "value": null }] } }
+          }
+        }
+      ]
+    }
