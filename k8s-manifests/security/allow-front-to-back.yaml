@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-backend
+  namespace: demo
+spec:
+  podSelector:
+    matchLabels:
+      app: demo-backend
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: demo-frontend
+    ports:
+    - protocol: TCP
+      port: 8080

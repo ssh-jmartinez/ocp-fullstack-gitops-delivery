@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-to-db
+  namespace: demo
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres # Asegúrate de que este label coincida con tu DB
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: demo-backend
+    ports:
+    - protocol: TCP
+      port: 5432
