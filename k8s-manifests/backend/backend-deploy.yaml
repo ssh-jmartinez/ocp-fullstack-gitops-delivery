@@ -41,6 +41,8 @@ kind: Service
 metadata:
   name: demo-backend # Este nombre es el que usará el frontend para conectar
   namespace: demo
+  labels:
+    app: demo-backend
 spec:
   selector:
     app: demo-backend
