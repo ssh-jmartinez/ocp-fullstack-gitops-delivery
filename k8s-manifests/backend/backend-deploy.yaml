@@ -46,5 +46,6 @@ spec:
     app: demo-backend
   ports:
     - protocol: TCP
+      name: web
       port: 8080
       targetPort: 8080
