@@ -1,24 +1,27 @@
 # ENTERPRISE GITOPS PLATFORM ON RED HAT OPENSHIFT
 
 <p align="center">
-  Plataforma GitOps enterprise end-to-end enfocada en automatización, seguridad Zero Trust, observabilidad y progressive delivery sobre Red Hat OpenShift.
+  Plataforma GitOps enterprise end-to-end construida sobre Red Hat OpenShift.
+</p>
+
+<p align="center">
+  Automatización • Zero Trust • Progressive Delivery • Observabilidad
 </p>
 
 ---
 
 ## Arquitectura General
 
-<p align="center">
-  <img src="./docs/architecture/platform-overview.png" alt="Enterprise GitOps Platform" width="100%">
-</p>
+![Arquitectura Técnica del Proyecto](./assets/root-architecture.png)
+
 
 ---
 
 # Visión General
 
-Este repositorio representa una plataforma GitOps enterprise completa construida sobre Red Hat OpenShift.
+Este repositorio representa una plataforma GitOps enterprise moderna diseñada sobre Red Hat OpenShift.
 
-El objetivo principal del proyecto es demostrar cómo diseñar una infraestructura moderna basada en:
+El proyecto busca mostrar cómo construir una arquitectura cloud-native completa utilizando:
 
 - GitOps
 - CI/CD declarativo
@@ -32,6 +35,16 @@ Todo gestionado como código.
 
 ---
 
+# Objetivo del Proyecto
+
+La idea de este repositorio no es solamente desplegar aplicaciones.
+
+El objetivo es mostrar la evolución progresiva de una plataforma enterprise real, pasando desde workloads básicos hasta mecanismos avanzados de seguridad y delivery moderno.
+
+Cada directorio representa una etapa incremental de madurez de la plataforma.
+
+---
+
 # Stack Tecnológico
 
 ## Plataforma
@@ -40,7 +53,7 @@ Todo gestionado como código.
 - Kubernetes
 - OpenShift Pipelines (Tekton)
 
-## GitOps
+## GitOps & Delivery
 
 - Argo CD
 - Argo Rollouts
@@ -49,7 +62,6 @@ Todo gestionado como código.
 
 - Network Policies
 - RBAC
-- Pod Security
 - Bitnami Sealed Secrets
 
 ## Observabilidad
@@ -65,153 +77,170 @@ Todo gestionado como código.
 
 ---
 
-# Objetivo del Repositorio
-
-Este proyecto NO busca mostrar solamente una aplicación.
-
-Busca representar cómo podría verse una plataforma enterprise real en producción utilizando prácticas modernas de:
-
-- Infraestructura como Código
-- GitOps
-- Entregas progresivas
-- Seguridad por diseño
-- Automatización declarativa
-- Observabilidad integrada
-
----
-
-# Estructura del Proyecto
-
-La estructura está organizada para separar claramente cada dominio de la plataforma.
+# Estructura General del Proyecto
 
 ```bash
 .
 ├── argocd-apps/
-├── k8s-manifest/
-├── observability/
-├── docs/
-├── scripts/
+├── k8s-manifests/
+├── assets/
+├── pipelines/
 └── README.md
 ```
 
 ---
 
-# Directorio Principal: `k8s-manifest`
+# Roadmap Evolutivo de la Plataforma
 
-Dentro de `k8s-manifest` se encuentran las distintas capas de la plataforma.
+Dentro del directorio `k8s-manifests` se encuentra la evolución progresiva del proyecto.
 
-Cada directorio representa una etapa funcional del entorno enterprise.
+Cada carpeta representa una etapa distinta de construcción y madurez de la plataforma.
 
 ```bash
-k8s-manifest/
-├── 01-core/
-├── 02-security/
-└── 03-advanced-delivery/
+k8s-manifests/
+├── 01-core
+├── 02-security
+└── 03-advanced-delivery
 ```
 
 ---
 
-# ¿Qué contiene cada directorio?
+# 01-core → Base de la Plataforma
 
-## `01-core`
+Primera etapa del proyecto.
 
-Infraestructura base de Kubernetes/OpenShift.
+Acá se construye la base funcional de la aplicación sobre OpenShift.
 
-Ejemplos:
+Incluye:
 
-- Namespaces
-- ConfigMaps
-- Services
-- Ingress
-- Storage
-- Recursos base de aplicaciones
+- Frontend
+- Backend
+- PostgreSQL
+- Deployments básicos
+- Service Monitor
+- Gestión inicial de secretos
 
-También puede incluir la evolución inicial del entorno por proyecto o por día.
+Estructura actual:
 
----
+```bash
+01-core/
+├── backend/
+├── database/
+├── frontend/
+└── README.md
+```
 
-## `02-security`
-
-Capa de seguridad Zero Trust.
-
-Ejemplos:
-
-- Network Policies
-- RBAC
-- Pod Security
-- Sealed Secrets
-- Restricciones de tráfico
-- Seguridad declarativa
-
-Aquí se documenta cómo fue evolucionando la seguridad del cluster y las aplicaciones.
+El objetivo de esta etapa es tener la plataforma funcionando correctamente dentro del cluster.
 
 ---
 
-## `03-advanced-delivery`
+# 02-security → Zero Trust & Aislamiento
 
-Entrega progresiva y automatización avanzada.
+Segunda etapa del proyecto.
 
-Ejemplos:
+Acá comienza la implementación de seguridad Zero Trust utilizando Kubernetes Network Policies.
 
-- Argo Rollouts
+El objetivo deja de ser solamente "que funcione" y pasa a ser:
+
+- controlar tráfico interno,
+- aislar workloads,
+- limitar comunicación lateral,
+- permitir únicamente conexiones explícitas.
+
+Incluye políticas como:
+
+- default deny
+- frontend → backend
+- backend → database
+- monitoring access
+- ingress access
+
+Estructura actual:
+
+```bash
+02-security/
+├── allow-back-to-db.yaml
+├── allow-front-to-back.yaml
+├── allow-monitoring.yaml
+├── allow-openshift-ingress.yaml
+├── default-deny.yaml
+└── README.md
+```
+
+Esta etapa representa la evolución hacia una arquitectura más segura y enterprise-ready.
+
+---
+
+# 03-advanced-delivery → Progressive Delivery
+
+Tercera etapa del proyecto.
+
+Acá se implementan estrategias modernas de despliegue utilizando Argo Rollouts.
+
+Incluye:
+
 - Canary Deployments
-- Blue/Green
 - Traffic Shifting
-- Auto Rollback
 - Progressive Delivery
+- Releases controladas
+- Estrategias avanzadas de rollout
 
-Este directorio contiene las implementaciones avanzadas relacionadas al ciclo de entrega de aplicaciones.
+Estructura actual:
+
+```bash
+03-advanced-delivery/
+├── backend/
+├── frontend/
+└── README.md
+```
+
+Esta etapa representa la madurez operacional de la plataforma.
 
 ---
 
-# Organización Interna
+# README.md por Directorio
 
-Cada subdirectorio puede contener:
+Cada etapa del proyecto contiene su propio `README.md`.
 
-- manifests YAML
-- overlays
-- pruebas
-- ejemplos
-- snapshots
-- implementaciones por proyecto
-- implementaciones por día
-- documentación técnica específica
+La idea es mantener:
 
-La idea es que el repositorio funcione tanto como:
+- el README raíz como visión general de la plataforma,
+- y cada subdirectorio como documentación detallada de implementación.
 
-- laboratorio práctico,
-- referencia técnica,
-- documentación viva,
-- plataforma reusable.
+Dentro de cada carpeta se documenta:
+
+- qué se construyó,
+- por qué se implementó,
+- cómo funciona,
+- decisiones técnicas,
+- evolución del proyecto por etapa.
 
 ---
 
 # GitOps Bootstrap
 
-Todo el proyecto puede desplegarse utilizando Argo CD.
+Toda la plataforma puede desplegarse automáticamente utilizando Argo CD.
 
-Una vez instalado Argo CD en OpenShift, ejecutar:
+Una vez instalado Argo CD en OpenShift:
 
 ```bash
 argocd app create -f argocd-apps/root-app.yaml
 ```
 
-Esto desplegará automáticamente toda la estructura declarativa definida en el repositorio.
+Esto desplegará automáticamente toda la estructura declarativa del proyecto dentro del cluster OpenShift.
 
 ---
 
 # ¿Qué hace el Root Application?
 
-El `root-app.yaml` actúa como punto central de sincronización GitOps.
+El archivo `root-app.yaml` actúa como punto central de sincronización GitOps.
 
 Desde allí:
 
-- Argo CD sincroniza todas las aplicaciones
-- se despliegan los manifests automáticamente
-- se mantienen los estados declarativos
-- se aplica la estructura completa de la plataforma
-
-Esto permite administrar toda la infraestructura desde Git.
+- Argo CD sincroniza todos los recursos,
+- despliega manifests automáticamente,
+- mantiene el estado declarativo,
+- y administra la plataforma completa desde Git.
 
 ---
 
@@ -222,7 +251,7 @@ GitHub
    ↓
 Tekton Pipelines
    ↓
-Container Registry
+OpenShift Internal Registry
    ↓
 Argo CD
    ↓
@@ -241,31 +270,31 @@ Observabilidad + Seguridad
 
 ## GitOps Declarativo
 
-Toda la plataforma es gestionada desde Git.
+Toda la plataforma es administrada desde Git.
 
 ---
 
 ## Seguridad Zero Trust
 
-El tráfico entre workloads está controlado mediante Network Policies.
+La comunicación entre workloads está controlada mediante Network Policies.
 
 ---
 
 ## Progressive Delivery
 
-Implementaciones Canary utilizando Argo Rollouts.
+Deployments Canary utilizando Argo Rollouts.
 
 ---
 
 ## Gestión Segura de Secretos
 
-Uso de Bitnami Sealed Secrets para proteger credenciales sensibles.
+Protección de credenciales utilizando Bitnami Sealed Secrets.
 
 ---
 
 ## Observabilidad Integrada
 
-Métricas y monitoreo utilizando Prometheus y Grafana.
+Monitoreo y métricas utilizando Prometheus y Grafana.
 
 ---
 
@@ -280,7 +309,6 @@ Toda la plataforma puede recrearse automáticamente desde manifests declarativos
 - OpenShift Cluster
 - Argo CD
 - OpenShift Pipelines
-- Acceso administrativo al cluster
 - CLI:
   - oc
   - kubectl
@@ -292,7 +320,7 @@ Toda la plataforma puede recrearse automáticamente desde manifests declarativos
 
 Este repositorio fue diseñado con una idea clara:
 
-> tratar infraestructura, seguridad y delivery como un ecosistema integrado y observable.
+> construir infraestructura moderna como un ecosistema integrado, observable y automatizado.
 
 No como componentes aislados.
 
