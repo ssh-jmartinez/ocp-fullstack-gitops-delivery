@@ -15,7 +15,7 @@ spec:
         app: demo-frontend
     spec:
       containers:
-      - name: web
+      - name: web-server
         image: image-registry.openshift-image-registry.svc:5000/demo/mi-web:latest
         ports:
         - containerPort: 8080
