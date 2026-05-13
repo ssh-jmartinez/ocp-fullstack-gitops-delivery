@@ -1,10 +1,10 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: demo-backend
   namespace: demo
 spec:
-  replicas: 1
+  replicas: 4 # Subimos réplicas para ver mejor el Canary
   selector:
     matchLabels:
       app: demo-backend
@@ -18,7 +18,7 @@ spec:
         image: image-registry.openshift-image-registry.svc:5000/demo/demo-backend:latest
         env:
         - name: DB_HOST
-          value: "database-postgresql" # El nombre del Service de tu DB
+          value: "database-postgresql"
         - name: DB_NAME
           value: "app_db"
         - name: DB_USER
@@ -35,6 +35,16 @@ spec:
           requests:
             cpu: 100m
             memory: 128Mi
+  strategy:
+    canary:
+      canaryService: demo-backend # Apunta a tu service existente
+      stableService: demo-backend
+      steps:
+      - setWeight: 25   # 1 pod nuevo (V2), 3 pods viejos (V1)
+      - pause: {}       # Pausa manual para verificar
+      - setWeight: 50   # 2 pods nuevos, 2 viejos
+      - pause: {duration: 1m}
+      - setWeight: 100  # Finaliza
 ---
 apiVersion: v1
 kind: Service
