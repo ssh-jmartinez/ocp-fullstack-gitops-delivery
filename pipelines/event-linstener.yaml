@@ -4,7 +4,9 @@ metadata:
   name: web-build-listener
   namespace: demo
 spec:
-  serviceAccountName: pipeline # Asegúrate de que esta SA tenga permisos
+  serviceAccountName: pipeline
   triggers:
-    - bindingRef: web-build-binding
-      templateRef: web-build-template
+    - template:
+        ref: web-build-template  # Cambiado de templateRef a template.ref
+      bindings:
+        - ref: web-build-binding  # Cambiado de bindingRef a bindings[0].ref
