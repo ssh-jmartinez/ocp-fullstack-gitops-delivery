@@ -56,20 +56,3 @@ spec:
   ports:
   - port: 80
     targetPort: 8080
----
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  name: demo-frontend-route
-  namespace: demo
-spec:
-  to:
-    kind: Service
-    name: demo-frontend
-    weight: 100
-  alternateBackends:
-  - kind: Service
-    name: demo-frontend-canary
-    weight: 0
-  port:
-    targetPort: 80
