@@ -35,15 +35,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: demo-frontend
+  name: demo-frontend # Haz lo mismo para el -canary
   namespace: demo
 spec:
   selector:
-    app: demo-frontend # Esto debe coincidir con la etiqueta en el template del Rollout
+    app: demo-frontend
+    # No pongas el hash aquí, deja que Argo Rollouts lo gestione
   ports:
-  - port: 80
-    targetPort: 8080
-    protocol: TCP
+  - protocol: TCP
+    port: 80         # Puerto del Servicio
+    targetPort: 8080 # EL PUERTO QUE RESPONDIÓ BIEN (donde vive Nginx)
 ---
 apiVersion: v1
 kind: Service
@@ -51,9 +52,10 @@ metadata:
   name: demo-frontend-canary
   namespace: demo
 spec:
-  selector:
-    app: demo-frontend # Esto debe coincidir con la etiqueta en el template del Rollout
   ports:
   - port: 80
-    targetPort: 8080
+    targetPort: 8080 # ¡IMPORTANTE! Debe ser el mismo que el estable
     protocol: TCP
+    name: http
+  selector:
+    app: demo-frontend # Argo Rollouts gestionará el hash aquí
