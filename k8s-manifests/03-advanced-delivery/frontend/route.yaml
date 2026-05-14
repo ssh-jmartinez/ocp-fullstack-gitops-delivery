@@ -4,6 +4,7 @@ metadata:
   name: demo-frontend-route
   namespace: demo
 spec:
+  host: demo-frontend-route-demo.apps.ocp.sbox.anubix.tech
   to:
     kind: Service
     name: demo-frontend
@@ -13,4 +14,7 @@ spec:
     name: demo-frontend-canary
     weight: 0
   port:
-    targetPort: 80
+    targetPort: 80 # Sigue apuntando al puerto 80 del Service
+  tls:
+    termination: edge # Esto añade el certificado SSL/TLS del cluster
+    insecureEdgeTerminationPolicy: Allow # Permite entrar por http y redirigir o permitir
