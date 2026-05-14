@@ -1,3 +1,4 @@
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
@@ -8,7 +9,6 @@ spec:
   selector:
     matchLabels:
       app: demo-frontend
-
   template:
     metadata:
       labels:
@@ -19,20 +19,17 @@ spec:
         image: image-registry.openshift-image-registry.svc:5000/demo/mi-web:latest
         ports:
         - containerPort: 8080
-
   strategy:
     canary:
+      # Estos nombres deben coincidir con los servicios de abajo
       stableService: demo-frontend
-      # canaryService: demo-frontend-canary
-
+      canaryService: demo-frontend-canary
       steps:
       - setWeight: 25
-      - pause: {}
-
+      - pause: {} # Se detiene indefinidamente hasta que tú avances el rollout
       - setWeight: 50
       - pause:
           duration: 1m
-
       - setWeight: 100
 ---
 apiVersion: v1
@@ -41,6 +38,7 @@ metadata:
   name: demo-frontend
   namespace: demo
 spec:
+  # Importante: Argo Rollouts modificará este selector dinámicamente
   selector:
     app: demo-frontend
   ports:
@@ -68,5 +66,10 @@ spec:
   to:
     kind: Service
     name: demo-frontend
+    weight: 100
+  alternateBackends:
+  - kind: Service
+    name: demo-frontend-canary
+    weight: 0
   port:
     targetPort: 80
